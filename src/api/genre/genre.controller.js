@@ -1,18 +1,4 @@
-import { Genre } from "./genre.model.js";
-import { genreSchema } from "./genre.model.js";
-
-/* 
-// promise approach
-export function findAll(req, res) {
-    Genre.find().sort("name")
-        .then(genres => {
-            res.send(genres);
-        })
-        .catch(error => {
-            res.status(500).send("Error retrieving genres.");
-        });
-}
- */
+import { Genre, validateGenre } from "./genre.model.js";
 
 // Middleware
 export async function findAll(req, res) {
@@ -37,7 +23,7 @@ export async function findById(req, res) {
 }
 
 export async function create(req, res) {
-	const { error } = genreSchema.validate(req.body);
+	const { error } = validateGenre.validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
 	let genre = new Genre({ name: req.body.name });
@@ -50,7 +36,7 @@ export async function create(req, res) {
 }
 
 export async function update(req, res) {
-	const { error } = genreSchema.validate(req.body);
+	const { error } = validateGenre.validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
 	try {
