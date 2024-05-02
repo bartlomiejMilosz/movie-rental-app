@@ -1,4 +1,4 @@
-import { Customer, customerSchema } from "./customer.model.js";
+import { Customer, validateCustomer } from "./customer.model.js";
 
 // Middleware
 export async function findAll(req, res) {
@@ -23,7 +23,7 @@ export async function findById(req, res) {
 }
 
 export async function create(req, res) {
-	const { error } = customerSchema.validate(req.body);
+	const { error } = validateCustomer(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
 	let customer = new Customer({
@@ -40,7 +40,7 @@ export async function create(req, res) {
 }
 
 export async function update(req, res) {
-	const { error } = customerSchema.validate(req.body);
+	const { error } = validateCustomer(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
 	try {
