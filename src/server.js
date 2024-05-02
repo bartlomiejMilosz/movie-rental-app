@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import {customerRouter} from "./api/customer/customer.router.js";
 import {genreRouter} from "./api/genre/genre.router.js";
 import {movieRouter} from "./api/movie/movie.router.js";
+import {rentalRouter} from "./api/rental/rental.router.js";
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.use(express.json());
 app.use("/api/genres", genreRouter);
 app.use("/api/customers", customerRouter);
 app.use("/api/movies", movieRouter);
+app.use("/api/rentals", rentalRouter);
 
 export { app };
