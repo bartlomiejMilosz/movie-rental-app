@@ -1,5 +1,4 @@
-import { Customer } from "./customer.model.js";
-import { customerSchema } from "./customer.model.js";
+import { Customer, customerSchema } from "./customer.model.js";
 
 // Middleware
 export async function findAll(req, res) {
