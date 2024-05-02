@@ -11,6 +11,7 @@ export async function findAll(req, res) {
 }
 
 export async function save(req, res) {
+	const { customerId, movieId, dateOut, rentalFee } = req.body;
 	try {
 		const { error } = validateRental(req.body);
 		if (error) {
@@ -18,10 +19,10 @@ export async function save(req, res) {
 		}
 
 		const rental = await rentalService.createRental(
-			req.body.customerId,
-			req.body.movieId,
-			req.body.dateOut,
-			req.body.rentalFee
+			customerId,
+			movieId,
+			dateOut,
+			rentalFee,
 		);
 		res.send(rental);
 	} catch (error) {
