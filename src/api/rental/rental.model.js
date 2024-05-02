@@ -1,6 +1,7 @@
 import Joi from "joi";
 import mongoose from "mongoose";
 import {customerSchema} from "../customer/customer.model.js";
+import {movieSchema} from "../movie/movie.model.js";
 
 const rentalSchema = new mongoose.Schema({
 	customer: {
@@ -8,21 +9,7 @@ const rentalSchema = new mongoose.Schema({
 		required: true,
 	},
 	movie: {
-		type: new mongoose.Schema({
-			title: {
-				type: String,
-				required: true,
-				trim: true,
-				minlength: 5,
-				maxlength: 255,
-			},
-			dailyRentalRate: {
-				type: Number,
-				required: true,
-				min: 0,
-				max: 255,
-			},
-		}),
+		type: movieSchema,
 		required: true,
 	},
 	dateOut: {
@@ -39,13 +26,13 @@ const rentalSchema = new mongoose.Schema({
 	},
 });
 
-const Rental = mongoose.model("Rental", rentalSchema);
+export const Rental = mongoose.model("Rental", rentalSchema);
 
-function validateRental(rental) {
-	const schema = {
-		customerId: Joi.string().required(),
-		movieId: Joi.string().required(),
-	};
+const rentalSchemaJoi = Joi.object({
+	customerId: Joi.string().required(),
+	movieId: Joi.string().required(),
+});
 
-	return Joi.validate(rental, schema);
+export function validateRental(rental) {
+	return rentalSchemaJoi.validate(rental);
 }
