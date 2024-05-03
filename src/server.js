@@ -6,7 +6,7 @@ import {genreRouter} from "./api/genre/genre.router.js";
 import {movieRouter} from "./api/movie/movie.router.js";
 import {rentalRouter} from "./api/rental/rental.router.js";
 import {userRouter} from "./api/user/user.router.js";
-import {userAuthRouter} from "./api/user/user.auth.router.js";
+import {userAuthRouter} from "./api/user/auth/user.auth.router.js";
 
 if (!config.get("jwtPrivateKey")) {
 	console.error("FATAL ERROR: jwtPrivateKey is not defined!");

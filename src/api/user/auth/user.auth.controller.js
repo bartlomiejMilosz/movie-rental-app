@@ -1,9 +1,8 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import config from "config";
 import {validateUserAuth} from "./user.auth.validation.js";
-import {User} from "./user.model.js";
+import {User} from "../user.model.js";
 
+// User login, authentication
 export async function signIn(req, res) {
 	const { error } = validateUserAuth(req.body);
 	if (error) {
@@ -21,7 +20,7 @@ export async function signIn(req, res) {
 	}
 
 	try {
-		const token = jwt.sign({ _id: user._id }, config.get("jwtPrivateKey"));
+		const token = user.generateAuthToken();
         res.send(token);
 	} catch (error) {
 		res.status(500).send("Error saving the User.");
