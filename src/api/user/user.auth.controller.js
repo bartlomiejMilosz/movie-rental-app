@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import {validateUserAuth} from "./user.auth.validation.js";
 import jwt from "jsonwebtoken";
 
-export async function save(req, res) {
+export async function signIn(req, res) {
     const { error } = validateUserAuth(req.body);
     if (error) {
         return res.status(400).send(error.message);
