@@ -1,6 +1,8 @@
 import Joi from "joi";
 import mongoose from "mongoose";
 import passwordComplexity from "joi-password-complexity";
+import jwt from "jsonwebtoken";
+import config from "config";
 
 const userSchema = new mongoose.Schema({
 	name: {
@@ -24,6 +26,10 @@ const userSchema = new mongoose.Schema({
 	},
 	isAdmin: Boolean,
 });
+
+userSchema.methods.generateAuthToken = function() {
+	return jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get("jwtPrivateKey"));
+}
 
 export const User = mongoose.model("User", userSchema);
 
