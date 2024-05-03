@@ -24,12 +24,11 @@ export async function signUp(req, res) {
 
 	try {
 		user = await user.save();
-		// res.send(_.pick(user, ["_id", "name", "email"]));
-		res.send({
-			name: user.name,
-			email: user.email
-		});
+		const token = user.generateAuthToken;
+		res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email']));
+		//res.send(_.pick(user, ["_id", "name", "email"])); - WORKING WITH THIS
 	} catch (error) {
-		res.status(500).send("Error saving the User.");
+		console.error("Error saving the user: ", error.message);
+		res.status(500).send(`Error saving the User: ${error.message}`);
 	}
 }
