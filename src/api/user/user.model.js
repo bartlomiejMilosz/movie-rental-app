@@ -1,5 +1,6 @@
 import Joi from "joi";
 import mongoose from "mongoose";
+import passwordComplexity from "joi-password-complexity";
 
 const userSchema = new mongoose.Schema({
 	name: {
@@ -26,10 +27,20 @@ const userSchema = new mongoose.Schema({
 
 export const User = mongoose.model("User", userSchema);
 
+export const complexityOptions = {
+	min: 5,  // Minimum length 5 characters
+	max: 72, // Maximum length 72 characters, accommodating bcrypt hash
+	lowerCase: 1, // At least one lowercase letter
+	upperCase: 1, // At least one uppercase letter
+	numeric: 1,   // At least one number
+	symbol: 1,    // At least one symbol
+	requirementCount: 4, // Must meet at least four of the above conditions
+};
+
 const userSchemaJoi = Joi.object({
 	name: Joi.string().min(5).max(50).required(),
 	email: Joi.string().min(5).max(255).required().email(),
-	password: Joi.string().min(5).max(72).required(),
+	password: passwordComplexity(complexityOptions, "Password").required(),
 });
 
 export function validateUser(user) {
