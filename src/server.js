@@ -5,6 +5,7 @@ import {genreRouter} from "./api/genre/genre.router.js";
 import {movieRouter} from "./api/movie/movie.router.js";
 import {rentalRouter} from "./api/rental/rental.router.js";
 import {userRouter} from "./api/user/user.router.js";
+import {userAuthRouter} from "./api/user/user.auth.router.js";
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.use("/api/customers", customerRouter);
 app.use("/api/movies", movieRouter);
 app.use("/api/rentals", rentalRouter);
 app.use("/api/users", userRouter);
+app.use("/api/auth", userAuthRouter);
 
 export { app };
