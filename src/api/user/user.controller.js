@@ -2,6 +2,19 @@ import {User, validateUser} from "./user.model.js";
 import _ from "lodash";
 import bcrypt from "bcrypt";
 
+export async function findById(req, res) {
+	try {
+		const user = await User.findById(req.user._id).select("-password");
+		if (!user) {
+			return res.status(404).send("The user with the given ID was not found.");
+		}
+		res.send(user);
+	} catch (error) {
+		res.status(500).send("Error finding the user.");
+	}
+}
+
+// User registration
 export async function signUp(req, res) {
 	const { error } = validateUser(req.body);
 	if (error) {
@@ -24,8 +37,8 @@ export async function signUp(req, res) {
 
 	try {
 		user = await user.save();
-		const token = user.generateAuthToken;
-		res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email']));
+		const token = user.generateAuthToken();
+		res.header("x-auth-token", token).send(_.pick(user, ["_id", "name", "email"]));
 		//res.send(_.pick(user, ["_id", "name", "email"])); - WORKING WITH THIS
 	} catch (error) {
 		console.error("Error saving the user: ", error.message);
