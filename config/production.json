@@ -1,0 +1,7 @@
+{
+  "db": {
+    "host": "prod-db-host",
+    "port": 27017,
+    "dbName": "movie-rental"
+  }
+}

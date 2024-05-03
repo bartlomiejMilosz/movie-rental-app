@@ -1,0 +1,8 @@
+{
+  "jwtPrivateKey": "MOVIE_RENTAL_JWT_PRIVATE_KEY",
+  "db": {
+    "host": "DB_HOST",
+    "port": "DB_PORT",
+    "dbName": "DB_NAME"
+  }
+}
