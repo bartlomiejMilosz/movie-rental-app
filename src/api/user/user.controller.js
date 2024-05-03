@@ -2,7 +2,7 @@ import {User, validateUser} from "./user.model.js";
 import _ from "lodash";
 import bcrypt from "bcrypt";
 
-export async function save(req, res) {
+export async function signUp(req, res) {
 	const { error } = validateUser(req.body);
 	if (error) {
 		return res.status(400).send(error.message);
