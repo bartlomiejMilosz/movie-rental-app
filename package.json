@@ -1,13 +1,13 @@
 {
-	"name": "playbook",
+	"name": "movie-rental",
 	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
+	"description": "API for book rental system with user authentication module",
+	"main": "./src/app.js",
 	"type": "module",
 	"scripts": {
 		"start": "node ./src/app.js"
 	},
-	"author": "",
+	"author": "Bart Milo",
 	"license": "ISC",
 	"devDependencies": {
 		"@biomejs/biome": "1.7.1"
