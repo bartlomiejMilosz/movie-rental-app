@@ -1,75 +1,68 @@
-import { Customer, validateCustomer } from "./customer.model.js";
+import {validateCustomer} from "./customer.model.js";
+import customerService from "./customer.service.js";
 
-// Middleware
-export async function findAll(req, res) {
+export async function findAllCustomers(req, res, next) {
 	try {
-		const customers = await Customer.find().sort("name");
+		const customers = await customerService.findAllCustomers();
 		res.send(customers);
 	} catch (error) {
-		res.status(500).send("Error retrieving Customers.");
+		next(error);
 	}
 }
 
-export async function findById(req, res) {
+export async function findCustomerById(req, res, next) {
 	try {
-		const customer = await Customer.findById(req.params.id);
-		if (!customer) {
-			return res.status(404).send("The Customer with the given ID was not found.");
+		const customer = await customerService.findCustomerById(req.params.id);
+		res.send(customer);
+	} catch (error) {
+		next(error);
+	}
+}
+
+export async function saveCustomer(req, res, next) {
+	const customer = req.body;
+	try {
+		const validationResult = validateCustomer(req.body);
+		if (validationResult.error) {
+			validationResult.error.status = 400;
+			throw validationResult.error;
 		}
-		res.send(customer);
+
+		const savedCustomer = await customerService.saveCustomer(customer);
+		res.status(201).send(savedCustomer);
 	} catch (error) {
-		res.status(500).send("Error finding the Customer.");
+		next(error);
 	}
 }
 
-export async function create(req, res) {
-	const { error } = validateCustomer(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
-
-	let customer = new Customer({
-		name: req.body.name,
-		isGold: req.body.isGold,
-		phone: req.body.phone,
-	});
-	try {
-		customer = await customer.save();
-		res.send(customer);
-	} catch (error) {
-		res.status(500).send("Error saving the Customer.");
-	}
-}
-
-export async function update(req, res) {
-	const { error } = validateCustomer(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+export async function updateCustomer(req, res, next) {
+	const customerId = req.params.id;
+	const customer = req.body;
 
 	try {
-		const customer = await Customer.findByIdAndUpdate(
-			req.params.id,
-			{
-				name: req.body.name,
-				isGold: req.body.isGold,
-				phone: req.body.phone,
-			},
-			{ new: true },
+		const validationResult = validateCustomer(customer);
+		if (validationResult.error) {
+			validationResult.error.status = 400;
+			throw validationResult.error;
+		}
+
+		const updatedCustomer = await customerService.updateCustomer(
+			customerId,
+			customer,
 		);
-		if (!customer) {
-			return res.status(404).send("The Customer with the given ID was not found.");
-		}
-		res.send(customer);
+		res.status(200).send(updatedCustomer);
 	} catch (error) {
-		res.status(500).send("Error updating the Customer.");
+		next(error);
 	}
 }
 
-export async function deleteCustomer(req, res) {
+export async function deleteCustomer(req, res, next) {
+	const customerId = req.params.id;
+
 	try {
-		const customer = await Customer.findByIdAndDelete(req.params.id);
-		if (!customer) {
-			return res.status(404).send("The Customer with the given ID was not found.");
-		}
-		res.send(customer);
+		const customer = await customerService.deleteCustomer(customerId);
+		res.status(200).send(customer);
 	} catch (error) {
-		res.status(500).send("Error deleting the Customer.");
+		next(error);
 	}
 }
