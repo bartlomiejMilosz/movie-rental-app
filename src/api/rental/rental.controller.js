@@ -1,24 +1,34 @@
-import {Rental, validateRental} from "./rental.model.js";
+import {validateRental} from "./rental.model.js";
 import rentalService from "./rental.service.js";
 
-export async function findAll(req, res) {
+export async function findAllRentals(req, res, next) {
 	try {
-		const rentals = await Rental.find().sort("-dateOut");
+		const rentals = await rentalService.findAllRentals();
 		res.send(rentals);
 	} catch (error) {
-		res.status(500).send("Error retrieving rentals.", error.message);
+		next(error);
 	}
 }
 
-export async function save(req, res) {
+export async function findRentalById(req, res, next) {
+	try {
+		const rental = await rentalService.findRentalById(req.params.id);
+		res.send(rental);
+	} catch (error) {
+		next(error);
+	}
+}
+
+export async function saveRental(req, res, next) {
 	const { customerId, movieId, dateOut, rentalFee } = req.body;
 	try {
-		const { error } = validateRental(req.body);
-		if (error) {
-			return res.status(400).send(error.details[0].message);
+		const validationResult = validateRental(req.body);
+		if (validationResult.error) {
+			validationResult.error.status = 400;
+			throw validationResult.error;
 		}
 
-		const rental = await rentalService.createRental(
+		const rental = await rentalService.saveRental(
 			customerId,
 			movieId,
 			dateOut,
@@ -26,18 +36,6 @@ export async function save(req, res) {
 		);
 		res.send(rental);
 	} catch (error) {
-		res.status(500).send(`Failed to save rental: ${error.message}`);
-	}
-}
-
-export async function findById(req, res) {
-	try {
-		const rental = await Rental.findById(req.params.id);
-		if (!rental) {
-			return res.status(404).send("The rental with the given ID was not found.");
-		}
-		res.send(rental);
-	} catch (error) {
-		res.status(500).send("Error finding the rental.");
+		next(error);
 	}
 }
