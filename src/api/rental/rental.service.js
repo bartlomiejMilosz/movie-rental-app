@@ -4,11 +4,16 @@ import {Movie} from "../movie/movie.model.js";
 import {Rental} from "./rental.model.js";
 import {DatabaseError} from "../../errors/DatabaseError.js";
 import {NotFoundError} from "../../errors/NotFoundError.js";
+import customerService from "../customer/customer.service.js";
+import movieService from "../movie/movie.service.js";
+import {Genre} from "../genre/genre.model.js";
 
 class RentalService {
-	async findAllRentals() {
+	async findAllRentals(page = 1, limit = 10) {
 		try {
-			const rentals = await Rental.find().sort("-dateOut");
+			const rentals = await Rental.find()
+				.skip((page - 1) * limit)
+				.limit(limit);
 			if (rentals.length === 0) {
 				throw new NotFoundError("No rentals found");
 			}
@@ -27,7 +32,10 @@ class RentalService {
 			}
 			return rental;
 		} catch (error) {
-			console.error(`Error retrieving rental with ID ${rentalId}`, error);
+			console.error(
+				`Error retrieving rental with ID: ${rentalId}, ${error.message}`,
+				error,
+			);
 			throw new DatabaseError("Database error occurred while retrieving rental");
 		}
 	}
@@ -36,19 +44,8 @@ class RentalService {
 		const session = await mongoose.startSession();
 		try {
 			session.startTransaction();
-			const customer = await Customer.findById(customerId).session(session);
-			if (!customer) {
-				throw new NotFoundError("Invalid customer.");
-			}
-
-			const movie = await Movie.findById(movieId).session(session);
-			if (!movie) {
-				throw new NotFoundError("Invalid movie.");
-			}
-
-			if (movie.numberInStock === 0) {
-				throw new NotFoundError("Movie not in stock.");
-			}
+			const customer = await customerService.findCustomerById(customerId, session);
+			const movie = await movieService.findMovieById(movieId, session);
 
 			const rental = new Rental({
 				customer: {
