@@ -7,6 +7,7 @@ import {movieRouter} from "./api/movie/movie.router.js";
 import {rentalRouter} from "./api/rental/rental.router.js";
 import {userRouter} from "./api/user/user.router.js";
 import {userAuthRouter} from "./api/user/auth/user.auth.router.js";
+import errorHandler from "./middleware/error.handler.js";
 
 if (!config.get("jwtPrivateKey")) {
 	console.error("FATAL ERROR: jwtPrivateKey is not defined!");
@@ -31,5 +32,6 @@ app.use("/api/movies", movieRouter);
 app.use("/api/rentals", rentalRouter);
 app.use("/api/users", userRouter);
 app.use("/api/auth", userAuthRouter);
+app.use(errorHandler);
 
 export { app };
