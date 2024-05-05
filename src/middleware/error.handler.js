@@ -13,7 +13,7 @@ function errorHandler(error, req, res, next) {
         return res.status(error.status).send({ error: "A database error occurred." });
     }
 
-    // Default to 500 server error
+    // Default
     const status = error.status || 500;
     const message = error.message || "An unexpected error occurred";
     res.status(status).send({ error: message });

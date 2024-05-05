@@ -13,7 +13,7 @@ export function adminAuth(req, res, next) {
 	try {
 		// Verify the token and attach the user payload to the request
 		const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
-		req.user = decoded; // Assuming your token payload includes user details
+		req.user = decoded; // Assuming the token payload includes user details
 
 		// Next, check if the user is an admin
 		if (!req.user.isAdmin) {
