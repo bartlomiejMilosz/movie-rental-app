@@ -1,67 +1,54 @@
-import { Genre, validateGenre } from "./genre.model.js";
+import genreService from "./genre.service.js";
 
-// Middleware
-export async function findAll(req, res) {
+export async function findAllGenres(req, res, next) {
 	try {
-		const genres = await Genre.find().sort("name");
+		const page = Number.parseInt(req.query.page) || 1;
+		const limit = Number.parseInt(req.query.limit) || 10;
+		const genres = await genreService.findAllGenres(page, limit);
 		res.send(genres);
 	} catch (error) {
-		res.status(500).send("Error retrieving genres.");
+		next(error);
 	}
 }
 
-export async function findById(req, res) {
+export async function findGenreById(req, res, next) {
 	try {
-		const genre = await Genre.findById(req.params.id);
-		if (!genre) {
-			return res.status(404).send("The genre with the given ID was not found.");
-		}
+		const genre = await genreService.findGenreById(req.params.id);
 		res.send(genre);
 	} catch (error) {
-		res.status(500).send("Error finding the genre.");
+		next(error);
 	}
 }
 
-export async function create(req, res) {
-	const { error } = validateGenre.validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
-
-	let genre = new Genre({ name: req.body.name });
+export async function saveGenre(req, res, next) {
+	const genre = req.body;
 	try {
-		genre = await genre.save();
-		res.send(genre);
+		const savedGenre = await genreService.saveGenre(genre);
+		res.status(201).send(savedGenre);
 	} catch (error) {
-		res.status(500).send("Error saving the genre.");
+		next(error);
 	}
 }
 
-export async function update(req, res) {
-	const { error } = validateGenre.validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+export async function updateGenre(req, res, next) {
+	const genreId = req.params.id;
+	const genre = req.body;
 
 	try {
-		const genre = await Genre.findByIdAndUpdate(
-			req.params.id,
-			{ name: req.body.name },
-			{ new: true },
-		);
-		if (!genre) {
-			return res.status(404).send("The genre with the given ID was not found.");
-		}
-		res.send(genre);
+		const updatedGenre = await genreService.updateGenre(genreId, genre);
+		res.status(200).send(updatedGenre);
 	} catch (error) {
-		res.status(500).send("Error updating the genre.");
+		next(error);
 	}
 }
 
-export async function deleteGenre(req, res) {
+export async function deleteGenre(req, res, next) {
+	const genreId = req.params.id;
+
 	try {
-		const genre = await Genre.findByIdAndDelete(req.params.id);
-		if (!genre) {
-			return res.status(404).send("The genre with the given ID was not found.");
-		}
-		res.send(genre);
+		const genre = await genreService.deleteGenre(genreId);
+		res.status(200).send(genre);
 	} catch (error) {
-		res.status(500).send("Error deleting the genre.");
+		next(error);
 	}
 }
