@@ -1,6 +1,6 @@
 import express from "express";
 import {findById, signUp} from "./user.controller.js";
-import {userAuth} from "../../middleware/user.auth.js";
+import {userAuth} from "../../middleware/auth/user.auth.js";
 
 const router = express.Router();
 
