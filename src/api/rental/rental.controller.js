@@ -1,9 +1,12 @@
 import {validateRental} from "./rental.model.js";
 import rentalService from "./rental.service.js";
+import movieService from "../movie/movie.service.js";
 
 export async function findAllRentals(req, res, next) {
 	try {
-		const rentals = await rentalService.findAllRentals();
+		const page = Number.parseInt(req.query.page) || 1;
+		const limit = Number.parseInt(req.query.limit) || 10;
+		const rentals = await rentalService.findAllRentals(page, limit);
 		res.send(rentals);
 	} catch (error) {
 		next(error);
@@ -22,19 +25,13 @@ export async function findRentalById(req, res, next) {
 export async function saveRental(req, res, next) {
 	const { customerId, movieId, dateOut, rentalFee } = req.body;
 	try {
-		const validationResult = validateRental(req.body);
-		if (validationResult.error) {
-			validationResult.error.status = 400;
-			throw validationResult.error;
-		}
-
 		const rental = await rentalService.saveRental(
 			customerId,
 			movieId,
 			dateOut,
 			rentalFee,
 		);
-		res.send(rental);
+		res.status(201).send(rental);
 	} catch (error) {
 		next(error);
 	}
