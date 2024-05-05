@@ -1,87 +1,68 @@
-import {Movie, validateMovie} from "./movie.model.js";
+import movieService from "./movie.service.js";
 
-export async function findAll(req, res) {
+export async function findAllMovies(req, res, next) {
 	try {
-		const movies = await Movie.find().sort("title");
+		const page = Number.parseInt(req.query.page) || 1;
+		const limit = Number.parseInt(req.query.limit) || 10;
+		const movies = await movieService.findAllMovies(page, limit);
 		res.send(movies);
 	} catch (error) {
-		res.status(500).send("Error retrieving movies.", error.message);
+		next(error);
 	}
 }
 
-export async function findById(req, res) {
+export async function findMovieById(req, res, next) {
 	try {
-		const movie = await Movie.findById(req.params.id);
-		if (!movie) {
-			return res.status(404).send("The movie with the given ID was not found.");
-		}
+		const movie = await movieService.findMovieById(req.params.id);
 		res.send(movie);
 	} catch (error) {
-		res.status(500).send("Error finding the movie.");
+		next(error);
 	}
 }
 
-export async function save(req, res) {
-	const { error } = validateMovie(req.body);
-	if (error) {
-		return res.status(400).send(error.message);
-	}
-
+export async function saveMovie(req, res, next) {
+	const movie = req.body;
 	try {
-		let newMovie = new Movie(req.body);
-		newMovie = await newMovie.save();
-		res.send(newMovie);
+		const savedMovie = await movieService.saveMovie(movie);
+		res.status(201).send(savedMovie);
 	} catch (error) {
-		res.status(500).send("Failed to save movie.", error.message);
+		next(error);
 	}
 }
 
-export async function updateMovie(req, res) {
-	const { error } = validateMovie(req.body);
-	if (error) {
-		return res.status(400).send(error.details[0].message);
-	}
+export async function updateMovie(req, res, next) {
+	const movieId = req.params.id;
+	const movie = req.body;
 
 	try {
-		const movie = await Movie.findByIdAndUpdate(req.params.id, {
-			title: req.body.title,
-			genre: req.body.genres,  // This assumes that 'req.body.genres' is an array of ObjectId strings
-			numberInStock: req.body.numberInStock,
-			dailyRentalRate: req.body.dailyRentalRate,
-		}, { new: true, runValidators: true });
-
-		if (!movie) {
-			return res.status(404).send("The movie with the given ID was not found.");
-		}
-		res.send(movie);
+		const updatedMovie = await movieService.updateMovie(movieId, movie);
+		res.status(200).send(updatedMovie);
 	} catch (error) {
-		res.status(500).send(`Error updating the movie: ${error.message}`);
+		next(error);
 	}
 }
 
-export async function updateMovieGenre(req, res) {
+export async function updateMovieGenre(req, res, next) {
+	const movieId = req.params.id;
+	const movieGenre = req.body;
 	try {
-		const movie = await Movie.findByIdAndUpdate(req.params.id, {
-			genre: req.body.genres,  // This also assumes that 'req.body.genres' is an array of ObjectId strings
-		}, { new: true, runValidators: true });
-
-		if (!movie) {
-			return res.status(404).send("The movie with the given ID was not found.");
-		}
-		res.send(movie);
+		const updatedMovieGenre = await movieService.updateMovieGenre(
+			movieId,
+			movieGenre,
+		);
+		res.status(200).send(updatedMovieGenre);
 	} catch (error) {
-		res.status(500).send(`Error updating the movie's genre: ${error.message}`);
+		next(error);
 	}
 }
 
-export async function deleteMovie(req, res) {
+export async function deleteMovie(req, res, next) {
+	const movieId = req.params.id;
+
 	try {
-		const movie = await Movie.findByIdAndRemove(req.params.id);
-		if (!movie) {
-			return res.status(404).send("The movie with the given ID was not found.");
-		}
-		res.send(movie);
+		const movie = await movieService.deleteMovie(movieId);
+		res.status(200).send(movie);
 	} catch (error) {
-		res.status(500).send(`Error deleting the movie: ${error.message}`);
+		next(error);
 	}
 }
