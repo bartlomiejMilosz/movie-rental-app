@@ -3,9 +3,12 @@ import {NotFoundError} from "../../errors/NotFoundError.js";
 import {Customer} from "./customer.model.js";
 
 class CustomerService {
-	async findAllCustomers() {
+	async findAllCustomers(page = 1, limit = 10) {
 		try {
-			const customers = await Customer.find().sort("name");
+			const customers = await Customer.find()
+				.sort({ name: 1 })
+				.skip((page - 1) * limit)
+				.limit(limit);
 			if (customers.length === 0) {
 				throw new NotFoundError("No customers found");
 			}

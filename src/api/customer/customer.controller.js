@@ -3,7 +3,9 @@ import customerService from "./customer.service.js";
 
 export async function findAllCustomers(req, res, next) {
 	try {
-		const customers = await customerService.findAllCustomers();
+		const page = Number.parseInt(req.query.page) || 1;
+		const limit = Number.parseInt(req.query.limit) || 10;
+		const customers = await customerService.findAllCustomers(page, limit);
 		res.send(customers);
 	} catch (error) {
 		next(error);
