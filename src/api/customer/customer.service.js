@@ -19,9 +19,13 @@ class CustomerService {
 		}
 	}
 
-	async findCustomerById(customerId) {
+	async findCustomerById(customerId, session = null) {
 		try {
-			const customer = await Customer.findById(customerId);
+			const query = Customer.findById(customerId);
+			if (session) {
+				query.session(session);
+			}
+			const customer = await query;
 			if (!customer) {
 				throw new NotFoundError(`Customer with ID ${customerId} not found`);
 			}
