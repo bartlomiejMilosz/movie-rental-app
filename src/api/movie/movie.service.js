@@ -19,7 +19,7 @@ class MovieService {
 		}
 	}
 
-	async findMovieById(movieId) {
+	async findMovieById(movieId, session = null) {
 		try {
 			const query = Movie.findById(movieId);
 			if (session) {
