@@ -1,5 +1,6 @@
 import {NotFoundError} from "../errors/NotFoundError.js";
 import {DatabaseError} from "../errors/DatabaseError.js";
+import {AlreadyExistsError} from "../errors/AlreadyExistsError.js";
 
 function errorHandler(error, req, res, next) {
     // Log the error for internal auditing/debugging
@@ -11,6 +12,9 @@ function errorHandler(error, req, res, next) {
     }
     if (error instanceof DatabaseError) {
         return res.status(error.status).send({ error: "A database error occurred." });
+    }
+    if (error instanceof AlreadyExistsError) {
+        return res.status(error.status).send({ error: error.message});
     }
 
     // Default
