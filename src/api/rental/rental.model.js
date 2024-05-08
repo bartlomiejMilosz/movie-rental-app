@@ -40,7 +40,7 @@ const rentalSchemaJoi = Joi.object({
 	customerId: Joi.string().custom(objectIdValidator, 'Object ID Validation').required(),
 	movieId: Joi.string().custom(objectIdValidator, 'Object ID Validation').required(),
 	dateOut: Joi.date().required(),
-	dateReturned: Joi.date().greater(Joi.ref('dateOut')),
+	dateReturned: Joi.date().greater(Joi.ref('dateOut')).allow(null),
 	rentalFee: Joi.number().min(0)
 });
 

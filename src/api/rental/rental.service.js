@@ -1,12 +1,9 @@
 import mongoose from "mongoose";
-import {Customer} from "../customer/customer.model.js";
-import {Movie} from "../movie/movie.model.js";
 import {Rental} from "./rental.model.js";
 import {DatabaseError} from "../../errors/DatabaseError.js";
 import {NotFoundError} from "../../errors/NotFoundError.js";
 import customerService from "../customer/customer.service.js";
 import movieService from "../movie/movie.service.js";
-import {Genre} from "../genre/genre.model.js";
 
 class RentalService {
 	async findAllRentals(page = 1, limit = 10) {
@@ -42,8 +39,8 @@ class RentalService {
 
 	async saveRental(customerId, movieId, dateOut, rentalFee) {
 		const session = await mongoose.startSession();
+		session.startTransaction();
 		try {
-			session.startTransaction();
 			const customer = await customerService.findCustomerById(customerId, session);
 			const movie = await movieService.findMovieById(movieId, session);
 
@@ -70,12 +67,13 @@ class RentalService {
 			await movie.save({ session });
 
 			await session.commitTransaction();
+			session.endSession();
 			return rental;
 		} catch (error) {
 			await session.abortTransaction();
-			throw error; // Let's ensure the error is caught in the controller
-		} finally {
-			await session.endSession();
+			session.endSession();
+			console.error("Transaction error: ", error);
+			throw error; // Enhanced error handling
 		}
 	}
 }
