@@ -1,5 +1,5 @@
 {
-	"name": "movie-rental",
+	"name": "movie-rental-app",
 	"version": "1.0.0",
 	"description": "API for book rental system with user authentication module",
 	"main": "./src/app.js",

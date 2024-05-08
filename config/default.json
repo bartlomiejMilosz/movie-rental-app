@@ -3,6 +3,6 @@
 	"db": {
 		"host": "localhost",
 		"port": 27017,
-		"dbName": "movie-rental"
+		"dbName": "movie-rental-db"
 	}
 }
