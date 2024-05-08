@@ -1,6 +1,4 @@
-import {validateRental} from "./rental.model.js";
 import rentalService from "./rental.service.js";
-import movieService from "../movie/movie.service.js";
 
 export async function findAllRentals(req, res, next) {
 	try {
