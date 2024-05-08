@@ -1,47 +1,26 @@
-import {User, validateUser} from "./user.model.js";
-import _ from "lodash";
-import bcrypt from "bcrypt";
+import userService from "./user.service.js";
 
-export async function findById(req, res) {
+export async function findById(req, res, next) {
+	const userId = req.user._id;
 	try {
-		const user = await User.findById(req.user._id).select("-password");
-		if (!user) {
-			return res.status(404).send("The user with the given ID was not found.");
-		}
+		const user = await userService.findUserById(userId);
 		res.send(user);
 	} catch (error) {
-		res.status(500).send("Error finding the user.");
+		next(error);
 	}
 }
 
-// User registration
-export async function signUp(req, res) {
-	const { error } = validateUser(req.body);
-	if (error) {
-		return res.status(400).send(error.message);
-	}
-
-	let user = await User.findOne({ email: req.body.email });
-	if (user) {
-		return res.status(400).send("User already registered.");
-	}
-
-	// user = new User(_.pick(req.body, ["name", "email", "password"]));
-	user = new User({
-		name: req.body.name,
-		email: req.body.email,
-		password: req.body.password,
-	});
-	const salt = await bcrypt.genSalt(10);
-	user.password = await bcrypt.hash(user.password, salt);
-
+export async function signUpUser(req, res, next) {
+	const userData = req.body;
 	try {
-		user = await user.save();
-		const token = user.generateAuthToken();
-		res.header("x-auth-token", token).send(_.pick(user, ["_id", "name", "email"]));
-		//res.send(_.pick(user, ["_id", "name", "email"])); - WORKING WITH THIS
+		const newUser = await userService.signUpUser(userData);
+		const token = newUser.generateAuthToken; // JWT token generation
+		res.header("Authorization", `Bearer ${token}`).send({
+			_id: newUser._id,
+			name: newUser.name,
+			email: newUser.email,
+		});
 	} catch (error) {
-		console.error("Error saving the user: ", error.message);
-		res.status(500).send(`Error saving the User: ${error.message}`);
+		next(error);
 	}
 }
