@@ -1,133 +1,215 @@
-sudo nano /etc/mongod.conf
+# Movie Rental System API
 
-# MongoDB Configuration File
+## Description
 
-# Network interfaces
-net:
-port: 27017
-bindIp: 127.0.0.1
+The Movie Rental System API is a robust Node.js application designed to streamline the management of movie rentals,
+customer interactions, and inventory control. Leveraging MongoDB with Mongoose for data management and Express for
+creating RESTful endpoints, it simplifies movie rental operations while ensuring scalability and maintainability. Docker
+is utilized to facilitate deployment and scaling of the application across different environments.
 
-# Replica set options
-replication:
-replSetName: "rs0"
+## System Architecture Diagram
 
-sudo systemctl restart mongod
-mongosh
-rs.initiate()
-rs.status()
+![System Architecture](rental_movie_app-UML-dark.png)
 
-# reinstallation
-sudo systemctl stop mongod
-sudo apt-get purge mongodb-org*
+## Features
 
-sudo rm -r /var/log/mongodb
-sudo rm -r /var/lib/mongodb
+- **Movie Management**: Create, update, retrieve, and delete movies along with detailed attributes like stock levels and
+  rental rates.
+- **Genre Management**: Manage movie genres, providing functionalities for adding new genres and updating existing ones.
+- **Customer Management**: Handle customer records, including adding new customers and updating existing customer
+  information.
+- **Rental Operations**: Support rental transactions, tracking details such as rental periods and fees.
+- **User Authentication**: Secure the application by managing user sessions and authorizations through JWT.
 
-sudo apt-get autoremove
-sudo apt-get autoclean
+## In-Progress Features
 
-wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-sudo apt-get update
-sudo apt-get install -y mongodb-org
+- **Advanced Search Capabilities**: Enhancing the search functionality to include filtering by genre, director, and
+  availability.
+- **Dynamic Pricing Model**: Implementing pricing algorithms that adjust rental rates based on demand and popularity.
 
-sudo systemctl start mongod
-sudo systemctl enable mongod
+## Getting Started
 
-sudo systemctl status mongod
-mongo / mongosh
+### Prerequisites
 
-Yes, you're absolutely correct that using a configuration library like config can greatly improve how you handle database connection settings by abstracting them out of your code and making your application more flexible and environment agnostic.
+- Node.js (preferable LTS v20.11.1. or higher)
+- Docker
+- Docker Compose
+- MongoDB instance (local or remote)
 
-Here's how you can use the config library to manage your MongoDB connection string, along with other settings:
-Step 1: Update Your Configuration Files
+### Installation
 
-    Modify Configuration Files:
-        Add a database connection string to your configuration files in the config directory.
+1. Clone the repository:
+   ```
+   git clone [repository_url]
+   ```
+2. Navigate to the project directory:
+   ```
+   cd movie-rental-app
+   ```
 
-Here’s an example of how you might structure these files:
+### Running the Application
 
-    default.json
+1. Install dependencies:
+   ```
+   npm install
+   ```
+2. Start the application using Docker Compose:
+   ```
+   docker-compose up --build
+   ```
+   This command sets up the MongoDB database and runs the application.
 
-    json
+### Accessing the Application
 
-{
-"db": {
-"host": "localhost",
-"port": 27017,
-"dbName": "vidly"
-}
-}
+Once the application is running, access it at:
 
-production.json
+```
+http://localhost:3000
+```
 
-json
+## Technical Specifications
 
-{
-"db": {
-"host": "prod-db-host",
-"port": 27017,
-"dbName": "vidly"
-}
-}
+### Technology Stack
+- **Node.js**: A runtime environment for executing JavaScript on the server-side.
+- **Express**: A minimal and flexible Node.js web application framework that provides robust features for web.
+- **MongoDB**: A NoSQL database used to store all application data in a flexible schema format.
+- **Mongoose**: An ODM (Object Data Modeling) library for MongoDB and Node.js that manages relationships between data and provides schema validation.
+- **Joi**: A schema description language and data validator for JavaScript.
+- **JWT (JSON Web Tokens)**: A compact, URL-safe means of representing claims to be transferred between two parties, used for secure user authentication.
+- **Bcrypt**: A library to help hash passwords securely.
 
-custom-environment-variables.json
+### System Architecture
+The system is structured using the MVC (Model-View-Controller) pattern, ensuring separation of concerns and scalability. Here is a breakdown of the project's structure:
 
-json
+- **/src**: Contains all source files.
+    - **/api**: Contains router and controller logic for each domain entity (movies, genres, customers, rentals, users).
+    - **/models**: Includes Mongoose schemas for the entities.
+    - **/services**: Business logic implementation for each entity.
+    - **/middleware**: Custom Express middleware for authentication and validation.
+    - **/errors**: Custom error classes to handle application-specific errors gracefully.
 
-    {
-        "db": {
-            "host": "DB_HOST",
-            "port": "DB_PORT",
-            "dbName": "DB_NAME"
-        }
-    }
+## API Endpoints
 
-Step 2: Use Config to Load Database Settings
+The application provides several RESTful endpoints:
 
-Modify your application to use these settings. Here’s how you can change your MongoDB connection setup:
+### Movies
 
-javascript
+- **POST /api/movies**
+    - Description: Create a new movie record.
+    - Request Body: `MovieDto`
+    - Response: `201 Created`
 
-import express from "express";
-import mongoose from "mongoose";
-import config from 'config';
-import { customerRouter } from "./api/customer/customer.router.js";
-import { genreRouter } from "./api/genre/genre.router.js";
-import { movieRouter } from "./api/movie/movie.router.js";
-import { rentalRouter } from "./api/rental/rental.router.js";
-import { userRouter } from "./api/user/user.router.js";
-import { userAuthRouter } from "./api/user/user.userAuth.router.js";
+- **GET /api/movies**
+    - Description: Retrieve a list of all movies, with pagination.
+    - Query Params: `page`, `size`
+    - Response: `200 OK`
 
-const app = express();
+- **GET /api/movies/{id}**
+    - Description: Retrieve a specific movie by its ID.
+    - Response: `200 OK`
 
-const dbConfig = config.get('db');
-const dbURI = `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
+- **PUT /api/movies/{id}**
+    - Description: Update a movie record by ID.
+    - Request Body: `MovieDto`
+    - Response: `200 OK`
 
-mongoose
-.connect(dbURI)
-.then(() => console.log("Connected to MongoDB..."))
-.catch((err) => console.error("Could not connect to MongoDB...", err.message));
+- **DELETE /api/movies/{id}**
+    - Description: Delete a specific movie by its ID.
+    - Response: `204 No Content`
 
-app.use(express.json());
-app.use("/api/genres", genreRouter);
-app.use("/api/customers", customerRouter);
-app.use("/api/movies", movieRouter);
-app.use("/api/rentals", rentalRouter);
-app.use("/api/users", userRouter);
-app.use("/api/userAuth", userAuthRouter);
+### Genres
 
-export { app };
+- **POST /api/genres**
+    - Description: Add a new genre.
+    - Request Body: `GenreDto`
+    - Response: `201 Created`
 
-### Step 3: Set Environment Variables for Production
-In your production environment, you should set environment variables that correspond to the keys in your custom-environment-variables.json. For example:
-export DB_HOST=prod-db-host
-export DB_PORT=27017
-export DB_NAME=movie-rental
+- **GET /api/genres**
+    - Description: List all genres.
+    - Response: `200 OK`
 
-export MOVIE_RENTAL_JWT_PRIVATE_KEY=mySecureKey
+- **GET /api/genres/{id}**
+    - Description: Retrieve a specific genre by its ID.
+    - Response: `200 OK`
 
-### to run app.js from terminal
-export MOVIE_RENTAL_JWT_PRIVATE_KEY=mySecureKey
-export NODE_CONFIG_DIR=/home/bart/Dropbox/Projects/javascript/movie-rental/config
+- **PUT /api/genres/{id}**
+    - Description: Update a genre by ID.
+    - Request Body: `GenreDto`
+    - Response: `200 OK`
 
+- **DELETE /api/genres/{id}**
+    - Description: Remove a genre by ID.
+    - Response: `204 No Content`
+
+### Customers
+
+- **POST /api/customers**
+    - Description: Register a new customer.
+    - Request Body: `CustomerDto`
+    - Response: `201 Created`
+
+- **GET /api/customers**
+    - Description: Fetch all customers.
+    - Query Params: `page`, `size`
+    - Response: `200 OK`
+
+- **GET /api/customers/{id}**
+    - Description: Get details of a specific customer.
+    - Response: `200 OK`
+
+- **PUT /api/customers/{id}**
+    - Description: Update customer details.
+    - Request Body: `CustomerDto`
+    - Response: `200 OK`
+
+- **DELETE /api/customers/{id}**
+    - Description: Delete a customer record.
+    - Response: `204 No Content`
+
+### Rentals
+
+- **POST /api/rentals**
+    - Description: Record a new rental.
+    - Request Body: `RentalDto`
+    - Response: `201 Created`
+
+- **GET /api/rentals**
+    - Description: View all rental records.
+    - Query Params: `page`, `size`
+    - Response: `200 OK`
+
+- **GET /api/rentals/{id}**
+    - Description: Retrieve details of a specific rental.
+    - Response: `200 OK`
+
+- **DELETE /api/rentals/{id}**
+    - Description: End a rental agreement.
+    - Response: `204 No Content`
+
+## Configuration
+Sensitive information and configuration details like database connection strings and JWT secrets are managed through environment variables, ensuring security and flexibility across different deployment environments.
+
+## Deployment
+The application is containerized using Docker, facilitating easy deployment and scaling. Docker Compose is utilized to orchestrate the multi-container setup, including the Node.js application and MongoDB database service.
+
+## Security Practices
+- **JWT Authentication**: Secures API endpoints, ensuring that only authenticated users can access specific functionalities.
+- **Password Hashing**: User passwords are hashed using bcrypt before storing in the database, preventing password theft.
+- **Validation Middleware**: Request data is rigorously validated using Joi and custom middleware to prevent invalid data handling and injection attacks.
+
+## Error Handling
+
+The system is equipped with custom error handling to ensure clear feedback is provided to the client in case of
+failures.
+
+## Contributing
+
+Contributions to the Movie Rental System API are encouraged. Please follow these guidelines for your submissions:
+
+- Provide clear and concise commit messages.
+- Include comments in your code where necessary.
+- Ensure code adheres to the established coding standards.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
