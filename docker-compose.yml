@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  app:
+    container_name: movie-rental_app
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - JWT_PRIVATE_KEY=${MOVIE_RENTAL_JWT_PRIVATE_KEY}  # .env
+      - DB_HOST=mongo
+      - DB_PORT=27017
+      - DB_NAME=movie-rental
+    depends_on:
+      - mongo
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - app-network
+
+  mongo:
+    container_name: movie-rental_mongodb
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
