@@ -1,7 +1,10 @@
 {
+  "jwtPrivateKey": "MOVIE_RENTAL_JWT_PRIVATE_KEY",
   "db": {
-    "host": "prod-db-host",
-    "port": 27017,
-    "dbName": "movie-rental"
+    "host": "localhost",
+    "port": 27018,
+    "dbName": "movie-rental",
+    "username": "admin",
+    "password": "password"
   }
 }
